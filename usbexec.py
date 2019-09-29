@@ -16,6 +16,7 @@ configs = [
   ExecConfig(('SecureROM for t8002si, Copyright 2007-2014, Apple Inc.', 'ROMRELEASE',  'iBoot-2651.0.0.1.31'),   aes_crypto_cmd=0x86DC+1),
   ExecConfig(('SecureROM for t8004si, Copyright 2007-2014, Apple Inc.', 'ROMRELEASE',  'iBoot-2651.0.0.3.3'),    aes_crypto_cmd=0x786C+1),
   ExecConfig(('SecureROM for s5l8960xsi, Copyright 2012, Apple Inc.',   'RELEASE',     'iBoot-1704.10'),         aes_crypto_cmd=0x10000B9A8),
+  ExecConfig(('SecureROM for s8000si, Copyright 2007-2014, Apple Inc.', 'RELEASE',     'iBoot-2234.0.0.2.22'),   aes_crypto_cmd=0x10000DAA0),
   ExecConfig(('SecureROM for t8010si, Copyright 2007-2015, Apple Inc.', 'ROMRELEASE',  'iBoot-2696.0.0.1.33'),   aes_crypto_cmd=0x10000C8F4),
   ExecConfig(('SecureROM for t8011si, Copyright 2007-2015, Apple Inc.', 'ROMRELEASE',  'iBoot-3135.0.0.2.3'),    aes_crypto_cmd=0x10000C994),
   ExecConfig(('SecureROM for t8015si, Copyright 2007-2016, Apple Inc.', 'ROMRELEASE',  'iBoot-3332.0.0.1.23'),   aes_crypto_cmd=0x100009E9C),

